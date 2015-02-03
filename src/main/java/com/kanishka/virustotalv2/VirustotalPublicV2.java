@@ -12,6 +12,7 @@ import com.kanishka.virustotal.dto.ScanInfo;
 import com.kanishka.virustotal.exception.InvalidArguentsException;
 import com.kanishka.virustotal.exception.QuotaExceededException;
 import com.kanishka.virustotal.exception.UnauthorizedAccessException;
+import com.kanishka.virustotal.exception.APIKeyNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,8 @@ public interface VirustotalPublicV2 {
     String VT2_URLSEPERATOR = "\n";
     int VT2_MAX_ALLOWED_URLS_PER_REQUEST = 4;
 
+    void setApiKey(String api) throws APIKeyNotFoundException;
+
     /**
      * Scan a given single file
      *
@@ -39,6 +42,15 @@ public interface VirustotalPublicV2 {
      * @return scan information
      */
     ScanInfo scanFile(final File fileToScan) throws IOException, UnauthorizedAccessException, QuotaExceededException;
+
+    /**
+     * Scan a given single file
+     *
+     * @param fileToScan the file object to be scanned
+     * @param notifyUrl the url to notify when scan is completed (only in the private API)
+     * @return scan information
+     */
+    ScanInfo scanFile(final File fileToScan, final String notifyUrl) throws IOException, UnauthorizedAccessException, QuotaExceededException;
 
     /**
      * The call allows you to rescan files in VirusTotal's file store without having to resubmit them, thus saving bandwidth.

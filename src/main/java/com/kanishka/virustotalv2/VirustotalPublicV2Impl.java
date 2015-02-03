@@ -40,7 +40,9 @@ public class VirustotalPublicV2Impl implements VirustotalPublicV2 {
 
     private static final String API_KEY_FIELD = "apikey";
 
-    private static final String RESOURCE_FIELD = "resource";
+    private static final String NOTIFY_URL_FIELD = "notify_url";
+
+    private static final String RESOURCE_FIELD = "resource";    
 
     private static final String ERR_MSG_EXCEED_MAX_REQ_PM = "Exceeded maximum" +
             " number of requests per minute, Please try again later.";
@@ -95,6 +97,14 @@ public class VirustotalPublicV2Impl implements VirustotalPublicV2 {
     }
 
     @Override
+    public void setApiKey(String api) throws APIKeyNotFoundException{
+        if (api == null || api.length() == 0) {
+            throw new APIKeyNotFoundException(ERR_MSG_API_KEY_NOT_FOUND);
+        }
+        this.apiKey =  api;
+    }
+
+    @Override
     public ScanInfo scanFile(File fileToScan) throws
             IOException, UnauthorizedAccessException,
             QuotaExceededException {
@@ -111,6 +121,52 @@ public class VirustotalPublicV2Impl implements VirustotalPublicV2 {
         List<MultiPartEntity> multiParts = new ArrayList<MultiPartEntity>();
         multiParts.add(file);
         multiParts.add(apikey);
+        Integer statusCode = -1;
+
+        try {
+            responseWrapper = httpRequestObject.request(URI_VT2_FILE_SCAN,
+                    null, null, RequestMethod.GET, multiParts);
+            statusCode = responseWrapper.getStatus();
+        } catch (RequestNotComplete e) {
+            statusCode = e.getHttpStatus().getStatusCode();
+            if (statusCode == VirustotalStatus.FORBIDDEN) {
+                //fobidden
+                throw new UnauthorizedAccessException(ERR_MSG_INVALID_API_KEY,
+                        e);
+            }
+        }
+        if (statusCode == VirustotalStatus.SUCCESSFUL) {
+            //valid response
+            String serviceResponse = responseWrapper.getResponse();
+            scanInfo = gsonProcessor.fromJson(serviceResponse, ScanInfo.class);
+        } else if (statusCode == VirustotalStatus.API_LIMIT_EXCEEDED) {
+            //limit exceeded
+            throw new QuotaExceededException(ERR_MSG_EXCEED_MAX_REQ_PM);
+        }
+        return scanInfo;
+
+    }
+
+    @Override
+    public ScanInfo scanFile(File fileToScan, final String notifyUrl) throws
+            IOException, UnauthorizedAccessException,
+            QuotaExceededException {
+        if (!fileToScan.canRead()) {
+            throw new FileNotFoundException(ERR_MSG_FILE_NOT_FOUND);
+        }
+        Response responseWrapper = new Response();
+        ScanInfo scanInfo = new ScanInfo();
+
+        FileBody fileBody = new FileBody(fileToScan);
+        MultiPartEntity file = new MultiPartEntity("file", fileBody);
+        MultiPartEntity apikey = new MultiPartEntity(API_KEY_FIELD,
+                new StringBody(apiKey));
+        MultiPartEntity notifyUrlParam = new MultiPartEntity(NOTIFY_URL_FIELD,
+                new StringBody(notifyUrl));
+        List<MultiPartEntity> multiParts = new ArrayList<MultiPartEntity>();
+        multiParts.add(file);
+        multiParts.add(apikey);
+        multiParts.add(notifyUrlParam);
         Integer statusCode = -1;
 
         try {
