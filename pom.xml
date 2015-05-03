@@ -199,7 +199,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fully.qualified.MainClass</mainClass>
+                            <mainClass>
+                            </mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
