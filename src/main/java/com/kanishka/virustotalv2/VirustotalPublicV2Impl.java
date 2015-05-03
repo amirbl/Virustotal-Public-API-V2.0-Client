@@ -11,11 +11,7 @@ import com.kanishka.net.exception.RequestNotComplete;
 import com.kanishka.net.model.MultiPartEntity;
 import com.kanishka.net.model.RequestMethod;
 import com.kanishka.net.model.Response;
-import com.kanishka.virustotal.dto.DomainReport;
-import com.kanishka.virustotal.dto.FileScanReport;
-import com.kanishka.virustotal.dto.GeneralResponse;
-import com.kanishka.virustotal.dto.IPAddressReport;
-import com.kanishka.virustotal.dto.ScanInfo;
+import com.kanishka.virustotal.dto.*;
 import com.kanishka.virustotal.exception.APIKeyNotFoundException;
 import com.kanishka.virustotal.exception.InvalidArguentsException;
 import com.kanishka.virustotal.exception.QuotaExceededException;
@@ -631,5 +627,78 @@ public class VirustotalPublicV2Impl implements VirustotalPublicV2 {
             throw new QuotaExceededException(ERR_MSG_EXCEED_MAX_REQ_PM);
         }
         return generalResponse;
+    }
+
+    @Override
+    public UploadUrl getUploadUrl() throws IOException,
+            UnauthorizedAccessException, QuotaExceededException {
+        UploadUrl uploadUrl = null;
+
+        Response responseWrapper = new Response();
+        String uriWithParams = URI_VT2_GET_URL + "?apikey=" + apiKey;
+        Integer statusCode = -1;
+
+        try {
+            responseWrapper = httpRequestObject.request(uriWithParams,
+                    null, null, RequestMethod.GET, null);
+            statusCode = responseWrapper.getStatus();
+        } catch (RequestNotComplete e) {
+            statusCode = e.getHttpStatus().getStatusCode();
+            if (statusCode == VirustotalStatus.FORBIDDEN) {
+                //forbidden
+                throw new UnauthorizedAccessException(ERR_MSG_INVALID_API_KEY, e);
+            }
+        }
+        if (statusCode == VirustotalStatus.SUCCESSFUL) {
+            //valid response
+            String serviceResponse = responseWrapper.getResponse();
+            uploadUrl = gsonProcessor.fromJson(serviceResponse, UploadUrl.class);
+        } else if (statusCode == VirustotalStatus.API_LIMIT_EXCEEDED) {
+            //limit exceeded
+            throw new QuotaExceededException(ERR_MSG_EXCEED_MAX_REQ_PM);
+        }
+
+        return uploadUrl;
+    }
+
+    @Override
+    public ScanInfo scanBigFile(File fileToScan, UploadUrl url) throws
+            IOException, UnauthorizedAccessException,
+            QuotaExceededException {
+        if (!fileToScan.canRead()) {
+            throw new FileNotFoundException(ERR_MSG_FILE_NOT_FOUND);
+        }
+        Response responseWrapper = new Response();
+        ScanInfo scanInfo = new ScanInfo();
+        FileBody fileBody = new FileBody(fileToScan);
+        MultiPartEntity file = new MultiPartEntity("file", fileBody);
+        MultiPartEntity apikey = new MultiPartEntity(API_KEY_FIELD,
+                new StringBody(apiKey));
+        List<MultiPartEntity> multiParts = new ArrayList<MultiPartEntity>();
+        multiParts.add(file);
+        multiParts.add(apikey);
+        Integer statusCode = -1;
+
+        try {
+            responseWrapper = httpRequestObject.request(url.getUploadUrl(),
+                    null, null, RequestMethod.GET, multiParts);
+            statusCode = responseWrapper.getStatus();
+        } catch (RequestNotComplete e) {
+            statusCode = e.getHttpStatus().getStatusCode();
+            if (statusCode == VirustotalStatus.FORBIDDEN) {
+                //forbidden
+                throw new UnauthorizedAccessException(ERR_MSG_INVALID_API_KEY, e);
+            }
+        }
+        if (statusCode == VirustotalStatus.SUCCESSFUL) {
+            //valid response
+            String serviceResponse = responseWrapper.getResponse();
+            scanInfo = gsonProcessor.fromJson(serviceResponse, ScanInfo.class);
+        } else if (statusCode == VirustotalStatus.API_LIMIT_EXCEEDED) {
+            //limit exceeded
+            throw new QuotaExceededException(ERR_MSG_EXCEED_MAX_REQ_PM);
+        }
+        return scanInfo;
+
     }
 }

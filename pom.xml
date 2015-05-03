@@ -5,7 +5,7 @@
 
     <groupId>com.kanishka.api</groupId>
     <artifactId>VirustotalPublicV2.0</artifactId>
-    <version>1.2.GA-SNAPSHOT</version>
+    <version>1.3.GA</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -199,8 +199,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>
-                            </mainClass>
+                            <mainClass>fully.qualified.MainClass</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

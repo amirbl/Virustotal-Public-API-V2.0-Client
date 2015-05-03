@@ -4,11 +4,7 @@
  */
 package com.kanishka.virustotalv2;
 
-import com.kanishka.virustotal.dto.DomainReport;
-import com.kanishka.virustotal.dto.FileScanReport;
-import com.kanishka.virustotal.dto.GeneralResponse;
-import com.kanishka.virustotal.dto.IPAddressReport;
-import com.kanishka.virustotal.dto.ScanInfo;
+import com.kanishka.virustotal.dto.*;
 import com.kanishka.virustotal.exception.InvalidArguentsException;
 import com.kanishka.virustotal.exception.QuotaExceededException;
 import com.kanishka.virustotal.exception.UnauthorizedAccessException;
@@ -30,6 +26,7 @@ public interface VirustotalPublicV2 {
     String URI_VT2_IP_REPORT = "http://www.virustotal.com/vtapi/v2/ip-address/report";
     String URI_VT2_DOMAIN_REPORT = "http://www.virustotal.com/vtapi/v2/domain/report";
     String URI_VT2_PUT_COMMENT = "https://www.virustotal.com/vtapi/v2/comments/put";
+    String URI_VT2_GET_URL = "https://www.virustotal.com/vtapi/v2/file/scan/upload_url";
     String VT2_URLSEPERATOR = "\n";
     int VT2_MAX_ALLOWED_URLS_PER_REQUEST = 4;
 
@@ -127,4 +124,21 @@ public interface VirustotalPublicV2 {
      * @return
      */
     GeneralResponse makeAComment(final String resource, final String comment) throws IOException, UnauthorizedAccessException, InvalidArguentsException, QuotaExceededException;
+
+    /**
+     * Returns a URL to upload files bigger then 32MB
+     *
+     * @return
+     */
+    UploadUrl getUploadUrl() throws IOException, UnauthorizedAccessException, QuotaExceededException;
+
+    /**
+     * Scan a given single file whom file size is larger then 32MB (needs private API)
+     *
+     * @param fileToScan the file object to be scanned
+     * @param url the upload url to which to send the file to be scanned
+     * @return scan information
+     */
+    ScanInfo scanBigFile(final File fileToScan, final UploadUrl url) throws IOException, UnauthorizedAccessException, QuotaExceededException;
+
 }
