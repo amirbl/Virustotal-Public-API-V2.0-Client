@@ -27,6 +27,9 @@ public interface VirustotalPublicV2 {
     String URI_VT2_DOMAIN_REPORT = "http://www.virustotal.com/vtapi/v2/domain/report";
     String URI_VT2_PUT_COMMENT = "https://www.virustotal.com/vtapi/v2/comments/put";
     String URI_VT2_GET_URL = "https://www.virustotal.com/vtapi/v2/file/scan/upload_url";
+//    String INTELLIGENCE_SEARCH_URL = "https://www.virustotal.com/intelligence/search/programmatic/?query=%s&apiKey=%s";
+    String INTELLIGENCE_SEARCH_URL = "https://www.virustotal.com/intelligence/search/programmatic/";
+    String INTELLIGENCE_DOWNLOAD_URL = "https://www.virustotal.com/intelligence/download/?hash=%s&apikey=%s";
     String VT2_URLSEPERATOR = "\n";
     int VT2_MAX_ALLOWED_URLS_PER_REQUEST = 4;
 
@@ -141,4 +144,7 @@ public interface VirustotalPublicV2 {
      */
     ScanInfo scanBigFile(final File fileToScan, final UploadUrl url) throws IOException, UnauthorizedAccessException, QuotaExceededException;
 
+    public SearchResult getMatchingFiles(String query, String page) throws IOException, UnauthorizedAccessException, QuotaExceededException;
+
+    public void downloadFile(String hash, String dest) throws IOException, UnauthorizedAccessException;
 }

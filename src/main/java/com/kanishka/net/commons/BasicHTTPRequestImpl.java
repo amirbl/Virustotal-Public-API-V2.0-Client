@@ -14,19 +14,9 @@ import com.kanishka.net.model.Response;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 /**
  * @author kdkanishka@gmail.com
@@ -34,6 +24,48 @@ import java.util.Map;
 public class BasicHTTPRequestImpl implements HTTPRequest {
 
     public BasicHTTPRequestImpl() {
+
+    }
+
+    public void downloadRequest(final String url, final RequestMethod requestMethod, final String destDir) throws IOException {
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        HttpURLConnection conn = null;
+
+        try {
+
+            URL urlObj = new URL(url);
+            conn = (HttpURLConnection) urlObj.openConnection();
+            conn.setRequestMethod(requestMethod.toString());
+
+            // opens input stream from the HTTP connection
+            inputStream = conn.getInputStream();
+
+            // opens an output stream to save into file
+            outputStream = new FileOutputStream(destDir + File.separator + UUID.randomUUID().toString() + ".apk");
+
+            int bytesRead;
+            byte[] buffer = new byte[4096];
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } finally {
+            if(outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                }
+            }
+            if(inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                }
+            }
+            if(conn != null) {
+                conn.disconnect();
+            }
+        }
 
     }
 

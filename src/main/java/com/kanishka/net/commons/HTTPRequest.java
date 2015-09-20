@@ -12,6 +12,8 @@ import com.kanishka.net.model.RequestMethod;
 import com.kanishka.net.model.Response;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.List;
 
 /**
@@ -24,4 +26,6 @@ public interface HTTPRequest {
                      RequestMethod requestMethod,
                      List<MultiPartEntity> multiParts) throws
             RequestNotComplete, IOException;
+
+    void downloadRequest(final String url, final RequestMethod requestMethod, final String destFile) throws IOException;
 }
