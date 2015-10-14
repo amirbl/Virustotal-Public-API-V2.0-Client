@@ -146,5 +146,5 @@ public interface VirustotalPublicV2 {
 
     public SearchResult getMatchingFiles(String query, String page) throws IOException, UnauthorizedAccessException, QuotaExceededException;
 
-    public void downloadFile(String hash, String dest) throws IOException, UnauthorizedAccessException;
+    public String downloadFile(String hash, String dest) throws IOException, UnauthorizedAccessException;
 }

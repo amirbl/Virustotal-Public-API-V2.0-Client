@@ -27,5 +27,5 @@ public interface HTTPRequest {
                      List<MultiPartEntity> multiParts) throws
             RequestNotComplete, IOException;
 
-    void downloadRequest(final String url, final RequestMethod requestMethod, final String destFile) throws IOException;
+    String downloadRequest(final String url, final RequestMethod requestMethod, final String destFile) throws IOException;
 }

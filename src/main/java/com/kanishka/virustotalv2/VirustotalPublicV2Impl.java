@@ -405,9 +405,9 @@ public class VirustotalPublicV2Impl implements VirustotalPublicV2 {
         return searchResult;
     }
 
-    public void downloadFile(String hash, String dest) throws IOException, UnauthorizedAccessException {
+    public String downloadFile(String hash, String dest) throws IOException, UnauthorizedAccessException {
         String downloadUrl = String.format(INTELLIGENCE_DOWNLOAD_URL, hash, apiKey);
-        httpRequestObject.downloadRequest(downloadUrl, RequestMethod.GET, dest);
+        return httpRequestObject.downloadRequest(downloadUrl, RequestMethod.GET, dest);
     }
 
     @Override

@@ -27,11 +27,12 @@ public class BasicHTTPRequestImpl implements HTTPRequest {
 
     }
 
-    public void downloadRequest(final String url, final RequestMethod requestMethod, final String destDir) throws IOException {
+    public String downloadRequest(final String url, final RequestMethod requestMethod, final String destDir) throws IOException {
         InputStream inputStream = null;
         FileOutputStream outputStream = null;
         HttpURLConnection conn = null;
 
+        String targetFile = null;
         try {
 
             URL urlObj = new URL(url);
@@ -42,7 +43,8 @@ public class BasicHTTPRequestImpl implements HTTPRequest {
             inputStream = conn.getInputStream();
 
             // opens an output stream to save into file
-            outputStream = new FileOutputStream(destDir + File.separator + UUID.randomUUID().toString() + ".apk");
+            targetFile = destDir + File.separator + UUID.randomUUID().toString() + ".apktmp";
+            outputStream = new FileOutputStream(targetFile);
 
             int bytesRead;
             byte[] buffer = new byte[4096];
@@ -66,6 +68,7 @@ public class BasicHTTPRequestImpl implements HTTPRequest {
                 conn.disconnect();
             }
         }
+        return targetFile;
 
     }
 
